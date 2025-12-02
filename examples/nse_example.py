@@ -83,8 +83,8 @@ def compare_nse_stocks():
         nse_symbol = f"{stock}.NS"
         data_handler = YFinanceDataHandler(
             symbol=nse_symbol,
-            start_date="2020-01-01",
-            end_date="2023-12-31"
+            start_date="2025-01-01",
+            end_date="2025-11-30"
         )
         
         backtester = Backtester(
@@ -144,14 +144,14 @@ def test_multiple_strategies_on_nse():
         
         data_handler = YFinanceDataHandler(
             symbol=nse_symbol,
-            start_date="2020-01-01",
-            end_date="2023-12-31"
+            start_date="2025-01-01",
+            end_date="2025-11-30"
         )
         
         backtester = Backtester(
             data_handler=data_handler,
             strategy=strategy,
-            initial_capital=1000000,
+            initial_capital=10000,
             commission=0.0005
         )
         
