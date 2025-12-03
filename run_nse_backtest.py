@@ -20,20 +20,31 @@ from strategies.rsi_bb_strategy import RSIBollingerStrategy
 from strategies import MovingAverageCrossover
 from strategies.momentum import RSIMomentumStrategy, MACDMomentumStrategy
 
+# Import new advanced strategies
+from strategies import (
+    StochasticBreakoutStrategy,
+    VWAPReversalStrategy,
+    SupertrendMomentumStrategy,
+    KeltnerSqueezeStrategy,
+    WilliamsTrendStrategy
+)
+
 
 def print_banner():
     """Print welcome banner"""
     print("\n" + "="*70)
-    print("   NSE STOCK BACKTESTING - MULTIPLE STRATEGIES")
+    print("   NSE STOCK BACKTESTING - 10 STRATEGIES AVAILABLE")
     print("="*70)
     print("\n💰 Initial Capital: ₹10,000")
     print("📈 Commission: 0.05% (typical discount broker)")
+    print("🆕 New: 5 Advanced Strategies with Multi-Indicator Confirmation!")
     print("="*70 + "\n")
 
 
 def get_strategy_choice():
     """Let user choose a strategy"""
     print("\n📊 Available Strategies:\n")
+    print("   === CLASSIC STRATEGIES ===")
     print("   1. RSI + Bollinger Bands (Mean Reversion)")
     print("      • Buy: Price at lower BB + RSI oversold")
     print("      • Sell: Price at middle BB or RSI overbought")
@@ -53,17 +64,39 @@ def get_strategy_choice():
     print("   5. MACD Momentum")
     print("      • Buy: MACD crosses above signal line")
     print("      • Sell: MACD crosses below signal line")
+    print()
+    print("   === ADVANCED STRATEGIES (NEW!) ===")
+    print("   6. Stochastic Breakout (Momentum/Breakout)")
+    print("      • Primary: Stochastic Oscillator")
+    print("      • Confirmation: Volume Spike + ADX")
+    print()
+    print("   7. VWAP Reversal (Mean Reversion)")
+    print("      • Primary: VWAP")
+    print("      • Confirmation: RSI Divergence + Volume")
+    print()
+    print("   8. Supertrend Momentum (Trend Following)")
+    print("      • Primary: Supertrend (ATR-based)")
+    print("      • Confirmation: MACD + EMA Slope")
+    print()
+    print("   9. Keltner Squeeze (Breakout/Volatility)")
+    print("      • Primary: Keltner Channels")
+    print("      • Confirmation: BB Width + Momentum")
+    print()
+    print("   10. Williams Trend (Momentum/Trend)")
+    print("       • Primary: Williams %R")
+    print("       • Confirmation: ADX + Volume")
     
     while True:
-        choice = input("\n   Choose strategy (1-5): ").strip()
-        if choice in ['1', '2', '3', '4', '5']:
+        choice = input("\n   Choose strategy (1-10): ").strip()
+        if choice in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']:
             return int(choice)
-        print("   ❌ Invalid choice. Please enter 1, 2, 3, 4, or 5")
+        print("   ❌ Invalid choice. Please enter 1-10")
 
 
 def create_strategy(choice):
     """Create strategy based on user choice"""
     strategies = {
+        # Classic strategies
         1: ("RSI + Bollinger Bands", RSIBollingerStrategy(
             rsi_period=14,
             rsi_oversold=40,
@@ -94,6 +127,44 @@ def create_strategy(choice):
             fast_period=12,
             slow_period=26,
             signal_period=9
+        )),
+        
+        # Advanced strategies (NEW!)
+        6: ("Stochastic Breakout", StochasticBreakoutStrategy(
+            stoch_period=14,
+            stoch_oversold=20,
+            stoch_overbought=80,
+            adx_threshold=20,
+            volume_spike_multiplier=1.3
+        )),
+        7: ("VWAP Reversal", VWAPReversalStrategy(
+            vwap_deviation_threshold=1.5,
+            rsi_period=14,
+            rsi_oversold=35,
+            rsi_overbought=65,
+            volume_threshold=1.1
+        )),
+        8: ("Supertrend Momentum", SupertrendMomentumStrategy(
+            atr_period=10,
+            atr_multiplier=2.5,
+            macd_fast=12,
+            macd_slow=26,
+            ema_period=20
+        )),
+        9: ("Keltner Squeeze", KeltnerSqueezeStrategy(
+            kc_period=20,
+            kc_atr_multiplier=2.0,
+            bb_period=20,
+            bb_std=2.0,
+            momentum_threshold=1.0,
+            volume_threshold=1.3
+        )),
+        10: ("Williams Trend", WilliamsTrendStrategy(
+            williams_period=14,
+            williams_oversold=-80,
+            williams_overbought=-20,
+            adx_strong_trend=20,
+            volume_threshold=1.1
         ))
     }
     
@@ -313,11 +384,18 @@ def compare_all_strategies(symbol):
     
     # Test all strategies
     all_strategies = [
+        # Classic strategies
         (1, "RSI + Bollinger Bands"),
         (2, "Combined Strategy"),
         (3, "MA Crossover"),
         (4, "RSI Momentum"),
-        (5, "MACD Momentum")
+        (5, "MACD Momentum"),
+        # Advanced strategies
+        (6, "Stochastic Breakout"),
+        (7, "VWAP Reversal"),
+        (8, "Supertrend Momentum"),
+        (9, "Keltner Squeeze"),
+        (10, "Williams Trend")
     ]
     
     results_list = []
@@ -382,18 +460,18 @@ def print_comparison_table(symbol, results_list, start_date, end_date):
     """Print formatted comparison table"""
     df = pd.DataFrame(results_list)
     
-    print("\n" + "="*100)
+    print("\n" + "="*120)
     print(f"   STRATEGY COMPARISON FOR {symbol}")
     print(f"   Period: {start_date} to {end_date}")
     print(f"   Initial Capital: ₹10,000")
-    print("="*100)
+    print("="*120)
     
     # Sort by Total Return
     df_sorted = df.sort_values('Total Return (%)', ascending=False)
     
     print("\n📊 PERFORMANCE SUMMARY:\n")
     print(df_sorted.to_string(index=False))
-    print("\n" + "="*100)
+    print("\n" + "="*120)
     
     # Find best strategy
     best_return = df_sorted.iloc[0]
@@ -415,17 +493,18 @@ def print_comparison_table(symbol, results_list, start_date, end_date):
     print(f"\n   Most Active:        {most_trades['Strategy']}")
     print(f"                       {int(most_trades['Total Trades'])} trades")
     
-    print("\n" + "="*100)
+    print("\n" + "="*120)
     
     # Recommendations
     print("\n💡 RECOMMENDATIONS:\n")
     
     profitable = df[df['Total Return (%)'] > 0]
+    total_strategies = len(df)
     if len(profitable) > 0:
-        print(f"   ✅ {len(profitable)} out of 5 strategies were profitable")
-        print(f"\n   Top 3 Strategies by Return:")
-        for i, row in enumerate(df_sorted.head(3).itertuples(), 1):
-            emoji = "🥇" if i == 1 else "🥈" if i == 2 else "🥉"
+        print(f"   ✅ {len(profitable)} out of {total_strategies} strategies were profitable")
+        print(f"\n   Top 5 Strategies by Return:")
+        for i, row in enumerate(df_sorted.head(5).itertuples(), 1):
+            emoji = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else "🏅"
             print(f"   {emoji} {row.Strategy}: {row._2:.2f}% (Sharpe: {row._3:.2f})")
     else:
         print(f"   ⚠️  No strategies were profitable in this period")
