@@ -15,28 +15,36 @@ source venv/bin/activate
 python run_nse_backtest.py
 ```
 
-### 3. Follow the Prompts
+### 3. Choose Your Mode
 
-The script will guide you through:
+**Option 1: Test Single Strategy**
+- Choose from 5 strategies
+- Customize date range
+- See detailed results and graphs
 
-1. **Choose a Strategy** (5 options):
-   - RSI + Bollinger Bands (Mean Reversion)
-   - Combined (RSI + MACD + BB)
-   - Moving Average Crossover
-   - RSI Momentum
-   - MACD Momentum
+**Option 2: Compare All Strategies** ⭐ (Recommended!)
+- Tests all 5 strategies automatically
+- Fixed 1-year period from today
+- Side-by-side comparison table
+- Shows best performing strategy
+- Option to view detailed graphs for winner
 
-2. **Enter Stock Symbol**:
-   - Just the symbol (e.g., `RELIANCE`, `TCS`, `INFY`)
-   - No need to add `.NS` - it's added automatically
+**Option 3: Show Popular Stocks**
+- Lists common NSE stocks to test
 
-3. **Select Date Range**:
-   - Press Enter for defaults (last 2 years)
-   - Or specify custom dates (YYYY-MM-DD format)
+### 4. Follow the Prompts
 
-4. **View Results**:
-   - Performance metrics printed to terminal
-   - Beautiful graphs showing equity curve, drawdown, and trades
+**For Option 1 (Single Strategy)**:
+1. Choose a Strategy (1-5)
+2. Enter Stock Symbol (e.g., `RELIANCE`, `TCS`)
+3. Select Date Range (or use defaults)
+4. View results and graphs
+
+**For Option 2 (Compare All)** ⭐:
+1. Enter Stock Symbol (e.g., `RELIANCE`, `TCS`)
+2. Wait while all 5 strategies are tested
+3. View comparison table
+4. Optionally see detailed graphs for best strategy
 
 ## Example Session
 
@@ -52,11 +60,12 @@ $ python run_nse_backtest.py
 ======================================================================
 
 Options:
-  1. Backtest a stock
-  2. Show popular NSE stocks
-  3. Exit
+  1. Backtest a stock (choose strategy)
+  2. Compare all strategies on a stock (1 year)
+  3. Show popular NSE stocks
+  4. Exit
 
-Enter choice (1-3): 1
+Enter choice (1-4): 1
 
 📊 Available Strategies:
 
@@ -102,6 +111,99 @@ Fetched 495 bars of data
 
 [Results and graphs will be displayed]
 ```
+
+### Option 2: Compare All Strategies (NEW! ⭐)
+
+This mode automatically tests **all 5 strategies** on the same stock over the **last 1 year** and gives you a comprehensive comparison table!
+
+```
+Enter choice (1-4): 2
+
+📝 Enter Stock Symbol to Compare All Strategies:
+
+Stock Symbol (e.g., RELIANCE, TCS, INFY): TCS
+
+======================================================================
+🔄 COMPARING ALL STRATEGIES ON TCS
+📅 Period: 2023-12-03 to 2024-12-03 (Last 1 Year)
+======================================================================
+
+✅ Data fetched successfully
+
+Testing: RSI + Bollinger Bands...
+--------------------------------------------------
+✅ Completed - Return: 12.50%
+
+Testing: Combined Strategy...
+--------------------------------------------------
+✅ Completed - Return: 8.30%
+
+Testing: MA Crossover...
+--------------------------------------------------
+✅ Completed - Return: 15.20%
+
+Testing: RSI Momentum...
+--------------------------------------------------
+✅ Completed - Return: 10.80%
+
+Testing: MACD Momentum...
+--------------------------------------------------
+✅ Completed - Return: 11.40%
+
+====================================================================================================
+   STRATEGY COMPARISON FOR TCS
+   Period: 2023-12-03 to 2024-12-03
+   Initial Capital: ₹10,000
+====================================================================================================
+
+📊 PERFORMANCE SUMMARY:
+
+                    Strategy  Total Return (%)  Sharpe Ratio  Max Drawdown (%)  ...
+             MA Crossover               15.20          1.85            -12.30  ...
+  RSI + Bollinger Bands               12.50          1.62             -8.50  ...
+         MACD Momentum               11.40          1.45            -10.20  ...
+          RSI Momentum               10.80          1.38             -9.80  ...
+      Combined Strategy                8.30          1.15            -11.50  ...
+
+====================================================================================================
+
+🏆 HIGHLIGHTS:
+
+   Best Return:        MA Crossover
+                       15.20% return
+                       Final Value: ₹11,520.00
+
+   Best Risk-Adjusted: MA Crossover
+                       Sharpe Ratio: 1.85
+
+   Lowest Drawdown:    RSI + Bollinger Bands
+                       Max Drawdown: -8.50%
+
+   Most Active:        RSI Momentum
+                       24 trades
+
+====================================================================================================
+
+💡 RECOMMENDATIONS:
+
+   ✅ 5 out of 5 strategies were profitable
+
+   Top 3 Strategies by Return:
+   🥇 MA Crossover: 15.20% (Sharpe: 1.85)
+   🥈 RSI + Bollinger Bands: 12.50% (Sharpe: 1.62)
+   🥉 MACD Momentum: 11.40% (Sharpe: 1.45)
+
+   📈 Average Trading Frequency: 18.4 trades/year
+
+   ✅ 5 strategies have good risk-adjusted returns (Sharpe > 1)
+
+====================================================================================================
+
+📊 View detailed results for best strategy? (y/n): y
+
+[Shows full backtest with graphs for the best performing strategy]
+```
+
 
 ## Strategy Descriptions
 
@@ -313,6 +415,70 @@ backtester.plot_results()
 print(f"Return: {results['metrics']['Total Return (%)']:.2f}%")
 print(f"Sharpe: {results['metrics']['Sharpe Ratio']:.2f}")
 ```
+
+## Why Use "Compare All Strategies" Mode? ⭐
+
+### Benefits:
+
+1. **Save Time**: Test all 5 strategies in one go (vs. running 5 times manually)
+2. **Apples-to-Apples**: All strategies tested on exact same data period
+3. **Clear Winner**: Instantly see which strategy works best for that stock
+4. **Comprehensive View**: Compare return, Sharpe ratio, drawdown, win rate
+5. **Smart Recommendations**: Get actionable insights automatically
+
+### Best Use Cases:
+
+✅ **Finding the right strategy for a stock**
+- Test RELIANCE with all strategies
+- See which one performs best
+- Use that strategy going forward
+
+✅ **Quick stock screening**
+- Test multiple stocks one by one
+- Find which stocks work well with these strategies
+- Build a watchlist
+
+✅ **Strategy validation**
+- See if a strategy consistently performs
+- Test on multiple stocks
+- Build confidence before live trading
+
+### Workflow Example:
+
+```bash
+# 1. Test TCS with all strategies
+Choose option 2 → Enter "TCS" → See results
+
+# 2. Test RELIANCE with all strategies
+Choose option 2 → Enter "RELIANCE" → See results
+
+# 3. Test INFY with all strategies
+Choose option 2 → Enter "INFY" → See results
+
+# Result: You now know which strategy works best for each stock!
+```
+
+### Reading the Comparison Table:
+
+**Key Columns**:
+- **Total Return (%)**: Higher is better (positive = profit)
+- **Sharpe Ratio**: > 1 is good, > 2 is excellent
+- **Max Drawdown (%)**: Closer to 0 is better (less negative)
+- **Win Rate (%)**: > 50% means more wins than losses
+- **Total Trades**: Frequency of trading
+
+**🥇 Best Return**: Highest profit
+**⚖️ Best Risk-Adjusted**: Best Sharpe ratio (profit per unit of risk)
+**🛡️ Lowest Drawdown**: Most stable (smallest losses)
+**📈 Most Active**: Most trades (good if you want action)
+
+### Tips:
+
+1. **Run comparison first** - See overview before diving deep
+2. **View detailed graphs** - For best strategy only (saves time)
+3. **Test multiple stocks** - See which strategies are consistent
+4. **Note the date range** - 1 year is good for most strategies
+5. **Check trade count** - < 5 trades may not be significant
 
 ---
 
