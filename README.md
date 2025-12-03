@@ -11,7 +11,7 @@ A simple and modular Python framework for backtesting trading strategies on stoc
 - 📈 Built-in performance metrics (total return, Sharpe ratio, max drawdown, etc.)
 - 🔧 Modular strategy interface - easily create and test your own strategies
 - 📉 Visualization of equity curves and performance
-- 💡 Example strategies included (MA crossover, momentum, mean reversion)
+- 💡 **13 Strategies included** - RSI, MACD, Bollinger Bands, Supertrend, Keltner, Williams %R, VWAP, Stochastic, and **NEW: Donchian Breakout (Turtle Traders)**
 
 ## Installation
 
@@ -59,18 +59,29 @@ stocktrading/
 │   ├── metrics.py          # Performance metrics
 │   └── visualizer.py       # Plotting utilities
 ├── strategies/
-│   ├── ma_crossover.py     # Moving average crossover
-│   ├── momentum.py         # Momentum strategy
-│   └── mean_reversion.py   # Mean reversion strategy
+│   ├── ma_crossover.py       # Moving average crossover
+│   ├── momentum.py           # Momentum strategies (RSI, MACD)
+│   ├── mean_reversion.py     # Mean reversion strategy
+│   ├── rsi_bb_strategy.py    # RSI + Bollinger Bands
+│   ├── combined_strategy.py  # Multi-indicator combined
+│   ├── supertrend_momentum.py # Supertrend with MACD
+│   ├── keltner_squeeze.py    # Keltner Channel squeeze
+│   ├── williams_trend.py     # Williams %R trend
+│   ├── vwap_reversal.py      # VWAP reversal
+│   ├── stochastic_breakout.py # Stochastic breakout
+│   └── donchian_breakout.py  # 🆕 Donchian & Turtle Traders
 ├── examples/
 │   ├── simple_example.py   # Quick start
 │   ├── run_backtest.py     # Full examples
 │   └── nse_example.py      # NSE stock examples
 ├── requirements.txt
 ├── README.md
-├── GETTING_STARTED.md      # Detailed tutorial
-├── QUICK_REFERENCE.md      # Cheat sheet
-└── NSE_GUIDE.md           # Guide for Indian NSE stocks
+├── GETTING_STARTED.md           # Detailed tutorial
+├── QUICK_REFERENCE.md           # Cheat sheet
+├── NSE_GUIDE.md                 # Guide for Indian NSE stocks
+├── STRATEGIES_CHEATSHEET.md     # All strategies overview
+├── DONCHIAN_STRATEGY_GUIDE.md   # 🆕 Donchian Breakout guide
+└── SIP_OPTIMIZER_GUIDE.md       # SIP portfolio optimizer
 ```
 
 ## Creating Your Own Strategy

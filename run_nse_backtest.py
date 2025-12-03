@@ -26,18 +26,21 @@ from strategies import (
     VWAPReversalStrategy,
     SupertrendMomentumStrategy,
     KeltnerSqueezeStrategy,
-    WilliamsTrendStrategy
+    WilliamsTrendStrategy,
+    DonchianBreakoutStrategy,
+    AggressiveDonchianStrategy,
+    TurtleTradersStrategy
 )
 
 
 def print_banner():
     """Print welcome banner"""
     print("\n" + "="*70)
-    print("   NSE STOCK BACKTESTING - 10 STRATEGIES AVAILABLE")
+    print("   NSE STOCK BACKTESTING - 13 STRATEGIES AVAILABLE")
     print("="*70)
     print("\n💰 Initial Capital: ₹10,000")
     print("📈 Commission: 0.05% (typical discount broker)")
-    print("🆕 New: 5 Advanced Strategies with Multi-Indicator Confirmation!")
+    print("🆕 New: Donchian Breakout & Turtle Traders Strategies!")
     print("="*70 + "\n")
 
 
@@ -85,12 +88,28 @@ def get_strategy_choice():
     print("   10. Williams Trend (Momentum/Trend)")
     print("       • Primary: Williams %R")
     print("       • Confirmation: ADX + Volume")
+    print()
+    print("   === DONCHIAN BREAKOUT STRATEGIES (NEW!) ===")
+    print("   11. Donchian Breakout - Classic (Trend Following)")
+    print("       • Entry: 55-day high/low breakout")
+    print("       • Exit: 20-day channel")
+    print("       • Pure trend-following system")
+    print()
+    print("   12. Donchian Fast - Aggressive (Swing Trading)")
+    print("       • Entry: 20-day high/low breakout")
+    print("       • Exit: 10-day channel + ATR stops")
+    print("       • Higher frequency, tighter stops")
+    print()
+    print("   13. Turtle Traders - Original System")
+    print("       • Entry: 55-day breakout")
+    print("       • Exit: 20-day low")
+    print("       • Famous hedge fund strategy")
     
     while True:
-        choice = input("\n   Choose strategy (1-10): ").strip()
-        if choice in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']:
+        choice = input("\n   Choose strategy (1-13): ").strip()
+        if choice in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']:
             return int(choice)
-        print("   ❌ Invalid choice. Please enter 1-10")
+        print("   ❌ Invalid choice. Please enter 1-13")
 
 
 def create_strategy(choice):
@@ -165,6 +184,26 @@ def create_strategy(choice):
             williams_overbought=-20,
             adx_strong_trend=20,
             volume_threshold=1.1
+        )),
+        
+        # Donchian Breakout strategies (NEW!)
+        11: ("Donchian Breakout", DonchianBreakoutStrategy(
+            entry_period=55,
+            exit_period=20,
+            use_middle_band=True,
+            atr_period=14
+        )),
+        12: ("Donchian Fast", AggressiveDonchianStrategy(
+            entry_period=20,
+            exit_period=10,
+            atr_period=14,
+            atr_multiplier=2.0
+        )),
+        13: ("Turtle Traders", TurtleTradersStrategy(
+            entry_period=55,
+            exit_period=20,
+            atr_period=20,
+            risk_per_trade=0.02
         ))
     }
     
@@ -395,7 +434,11 @@ def compare_all_strategies(symbol):
         (7, "VWAP Reversal"),
         (8, "Supertrend Momentum"),
         (9, "Keltner Squeeze"),
-        (10, "Williams Trend")
+        (10, "Williams Trend"),
+        # Donchian Breakout strategies
+        (11, "Donchian Breakout"),
+        (12, "Donchian Fast"),
+        (13, "Turtle Traders")
     ]
     
     results_list = []

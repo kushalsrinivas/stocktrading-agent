@@ -31,7 +31,10 @@ from strategies import (
     VWAPReversalStrategy,
     SupertrendMomentumStrategy,
     KeltnerSqueezeStrategy,
-    WilliamsTrendStrategy
+    WilliamsTrendStrategy,
+    DonchianBreakoutStrategy,
+    AggressiveDonchianStrategy,
+    TurtleTradersStrategy
 )
 from strategies.momentum import RSIMomentumStrategy, MACDMomentumStrategy
 
@@ -66,7 +69,10 @@ class SIPStrategyOptimizer:
             'VWAP Reversal': VWAPReversalStrategy(),
             'Supertrend': SupertrendMomentumStrategy(),
             'Keltner Squeeze': KeltnerSqueezeStrategy(),
-            'Williams Trend': WilliamsTrendStrategy()
+            'Williams Trend': WilliamsTrendStrategy(),
+            'Donchian Breakout': DonchianBreakoutStrategy(entry_period=55, exit_period=20),
+            'Donchian Fast': AggressiveDonchianStrategy(entry_period=20, exit_period=10),
+            'Turtle Traders': TurtleTradersStrategy()
         }
     
     def load_stocks(self) -> pd.DataFrame:

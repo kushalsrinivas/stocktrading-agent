@@ -12,6 +12,11 @@ from .vwap_reversal import VWAPReversalStrategy, AggressiveVWAPStrategy
 from .supertrend_momentum import SupertrendMomentumStrategy, AggressiveSupertrendStrategy
 from .keltner_squeeze import KeltnerSqueezeStrategy, AggressiveSqueezeStrategy
 from .williams_trend import WilliamsTrendStrategy, AggressiveWilliamsStrategy
+from .donchian_breakout import (
+    DonchianBreakoutStrategy,
+    AggressiveDonchianStrategy,
+    TurtleTradersStrategy
+)
 
 __all__ = [
     'MovingAverageCrossover',
@@ -30,6 +35,9 @@ __all__ = [
     'KeltnerSqueezeStrategy',
     'AggressiveSqueezeStrategy',
     'WilliamsTrendStrategy',
-    'AggressiveWilliamsStrategy'
+    'AggressiveWilliamsStrategy',
+    'DonchianBreakoutStrategy',
+    'AggressiveDonchianStrategy',
+    'TurtleTradersStrategy'
 ]
 
