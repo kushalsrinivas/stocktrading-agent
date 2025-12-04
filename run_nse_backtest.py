@@ -29,18 +29,27 @@ from strategies import (
     WilliamsTrendStrategy,
     DonchianBreakoutStrategy,
     AggressiveDonchianStrategy,
-    TurtleTradersStrategy
+    TurtleTradersStrategy,
+    TrendLineStrategy,
+    TrendLineBreakoutStrategy,
+    SupportResistanceBounceStrategy,
+    SupportResistanceBreakoutStrategy,
+    SRRSIStrategy,
+    SRVolumeStrategy,
+    SREMAStrategy,
+    SRMACDStrategy,
+    SRAllInOneStrategy
 )
 
 
 def print_banner():
     """Print welcome banner"""
     print("\n" + "="*70)
-    print("   NSE STOCK BACKTESTING - 13 STRATEGIES AVAILABLE")
+    print("   NSE STOCK BACKTESTING - 22 STRATEGIES AVAILABLE")
     print("="*70)
     print("\n💰 Initial Capital: ₹10,000")
     print("📈 Commission: 0.05% (typical discount broker)")
-    print("🆕 New: Donchian Breakout & Turtle Traders Strategies!")
+    print("🔥 New: Advanced S/R Strategies with Multiple Confirmations!")
     print("="*70 + "\n")
 
 
@@ -104,12 +113,59 @@ def get_strategy_choice():
     print("       • Entry: 55-day breakout")
     print("       • Exit: 20-day low")
     print("       • Famous hedge fund strategy")
+    print()
+    print("   === TREND LINE & S/R STRATEGIES (NEW!) ===")
+    print("   14. Trend Line Bounce (Technical)")
+    print("       • Identifies trend lines via swing points")
+    print("       • Buys bounces off ascending trend lines")
+    print("       • Volume + ATR confirmation")
+    print()
+    print("   15. Trend Line Breakout (Momentum)")
+    print("       • Trades breakouts through trend lines")
+    print("       • Strong volume confirmation required")
+    print("       • ATR-based stop loss")
+    print()
+    print("   16. Support/Resistance Bounce (Mean Reversion)")
+    print("       • Identifies horizontal S/R levels")
+    print("       • Buys at support, sells at resistance")
+    print("       • Price clustering + volume profile")
+    print()
+    print("   17. Support/Resistance Breakout (Breakout)")
+    print("       • Trades breakouts through S/R levels")
+    print("       • High volume breakouts only")
+    print("       • Level becomes new support/resistance")
+    print()
+    print("   === ADVANCED S/R STRATEGIES (NEW! 🔥) ===")
+    print("   18. S/R + RSI (Momentum Confirmation)")
+    print("       🔥 Most reliable for beginners!")
+    print("       • Buy support when RSI oversold & curling up")
+    print("       • Sell resistance when RSI overbought")
+    print()
+    print("   19. S/R + Volume (Breakout Strength)")
+    print("       🔥 Best for breakout traders!")
+    print("       • Only trades high-volume breakouts (>150%)")
+    print("       • Filters fake breakouts")
+    print()
+    print("   20. S/R + 20/50 EMA (Trend Filter)")
+    print("       🔥 Best intraday + swing combo!")
+    print("       • Only buys support in uptrend (price > EMA)")
+    print("       • Avoids counter-trend trades")
+    print()
+    print("   21. S/R + MACD (Trend Reversal)")
+    print("       🔥 Catches reversals early!")
+    print("       • Buy support + MACD bullish cross")
+    print("       • Sell resistance + MACD bearish cross")
+    print()
+    print("   22. S/R All-in-One COMBO (Most Profitable)")
+    print("       ⭐ Institutional-style setup!")
+    print("       • 4 confirmations: S/R + RSI + EMA + Volume")
+    print("       • Highest win rate strategy")
     
     while True:
-        choice = input("\n   Choose strategy (1-13): ").strip()
-        if choice in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']:
+        choice = input("\n   Choose strategy (1-22): ").strip()
+        if choice in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22']:
             return int(choice)
-        print("   ❌ Invalid choice. Please enter 1-13")
+        print("   ❌ Invalid choice. Please enter 1-22")
 
 
 def create_strategy(choice):
@@ -204,6 +260,93 @@ def create_strategy(choice):
             exit_period=20,
             atr_period=20,
             risk_per_trade=0.02
+        )),
+        
+        # Trend Line & S/R strategies (NEW!)
+        14: ("Trend Line Bounce", TrendLineStrategy(
+            lookback_period=50,
+            min_touches=2,
+            bounce_tolerance=0.02,
+            volume_confirmation=True,
+            volume_threshold=1.2,
+            atr_period=14,
+            atr_multiplier=1.5,
+            breakout_mode=False
+        )),
+        15: ("Trend Line Breakout", TrendLineBreakoutStrategy(
+            lookback_period=40,
+            min_touches=2,
+            volume_threshold=1.5,
+            atr_period=14,
+            atr_multiplier=2.0
+        )),
+        16: ("Support/Resistance Bounce", SupportResistanceBounceStrategy(
+            lookback_period=80,
+            min_touches=3,
+            volume_threshold=1.3
+        )),
+        17: ("Support/Resistance Breakout", SupportResistanceBreakoutStrategy(
+            lookback_period=60,
+            min_touches=2,
+            volume_threshold=1.5
+        )),
+        
+        # Advanced S/R strategies (NEW!)
+        18: ("S/R + RSI", SRRSIStrategy(
+            lookback_period=100,
+            price_tolerance=0.02,
+            min_touches=2,
+            rsi_period=14,
+            rsi_oversold=40,
+            rsi_overbought=65,
+            rsi_momentum_threshold=2.0,
+            atr_period=14,
+            atr_multiplier=1.5
+        )),
+        19: ("S/R + Volume", SRVolumeStrategy(
+            lookback_period=80,
+            price_tolerance=0.025,
+            min_touches=2,
+            volume_threshold=1.5,
+            breakout_confirmation=0.01,
+            atr_period=14,
+            atr_multiplier=2.0
+        )),
+        20: ("S/R + EMA", SREMAStrategy(
+            lookback_period=100,
+            price_tolerance=0.02,
+            min_touches=2,
+            ema_fast=20,
+            ema_slow=50,
+            volume_confirmation=True,
+            volume_threshold=1.2,
+            atr_period=14,
+            atr_multiplier=1.5
+        )),
+        21: ("S/R + MACD", SRMACDStrategy(
+            lookback_period=100,
+            price_tolerance=0.02,
+            min_touches=2,
+            macd_fast=12,
+            macd_slow=26,
+            macd_signal=9,
+            atr_period=14,
+            atr_multiplier=1.5
+        )),
+        22: ("S/R All-in-One COMBO", SRAllInOneStrategy(
+            lookback_period=100,
+            price_tolerance=0.02,
+            min_touches=2,
+            rsi_period=14,
+            rsi_buy_min=30,
+            rsi_buy_max=45,
+            rsi_sell_min=60,
+            rsi_sell_max=75,
+            ema_fast=20,
+            ema_slow=50,
+            volume_threshold=1.3,
+            atr_period=14,
+            atr_multiplier=2.0
         ))
     }
     
@@ -297,8 +440,111 @@ def run_backtest(symbol, start_date, end_date, strategy_choice):
         return None
 
 
+def calculate_trade_levels(entry_price, direction, risk_reward_ratio=2.0, risk_pct=0.02):
+    """
+    Calculate stop loss and target prices based on entry price
+    
+    Args:
+        entry_price: Entry price for the trade
+        direction: 'buy' or 'sell'
+        risk_reward_ratio: Reward to risk ratio (default 2:1)
+        risk_pct: Risk percentage (default 2%)
+    
+    Returns:
+        tuple: (stop_loss, target_price)
+    """
+    if direction == 'buy':
+        stop_loss = entry_price * (1 - risk_pct)
+        target_price = entry_price * (1 + (risk_pct * risk_reward_ratio))
+    else:  # sell/short
+        stop_loss = entry_price * (1 + risk_pct)
+        target_price = entry_price * (1 - (risk_pct * risk_reward_ratio))
+    
+    return stop_loss, target_price
+
+
+def print_trade_details(trades_df, max_trades=10):
+    """
+    Print detailed trade information with entry, target, and stop loss
+    
+    Args:
+        trades_df: DataFrame with trade history
+        max_trades: Maximum number of trades to display
+    """
+    if trades_df.empty:
+        return
+    
+    print("\n" + "="*70)
+    print("   📋 TRADE DETAILS (Entry, Target, Stop Loss)")
+    print("="*70)
+    
+    # Group buy and sell trades into pairs
+    trade_pairs = []
+    current_buy = None
+    
+    for idx, trade in trades_df.iterrows():
+        if trade['Type'] == 'BUY':
+            current_buy = trade
+        elif trade['Type'] == 'SELL' and current_buy is not None:
+            # Calculate stop loss and target for the buy trade
+            entry_price = current_buy['Price']
+            exit_price = trade['Price']
+            stop_loss, target_price = calculate_trade_levels(entry_price, 'buy')
+            
+            pnl = exit_price - entry_price
+            pnl_pct = (pnl / entry_price) * 100
+            
+            trade_pairs.append({
+                'Entry Date': current_buy['Date'],
+                'Exit Date': trade['Date'],
+                'Entry Price': entry_price,
+                'Stop Loss': stop_loss,
+                'Target': target_price,
+                'Exit Price': exit_price,
+                'P&L': pnl,
+                'P&L %': pnl_pct,
+                'Outcome': 'Target Hit' if exit_price >= target_price else 'Stop Hit' if exit_price <= stop_loss else 'Exit'
+            })
+            current_buy = None
+    
+    if not trade_pairs:
+        print("\n   No completed trade pairs found.\n")
+        return
+    
+    # Display trades
+    print(f"\n   Showing {min(len(trade_pairs), max_trades)} most recent trades:\n")
+    
+    trades_to_show = trade_pairs[-max_trades:] if len(trade_pairs) > max_trades else trade_pairs
+    
+    for i, trade in enumerate(reversed(trades_to_show), 1):
+        outcome_emoji = "🎯" if trade['Outcome'] == 'Target Hit' else "🛑" if trade['Outcome'] == 'Stop Hit' else "📤"
+        pnl_emoji = "✅" if trade['P&L'] > 0 else "❌"
+        
+        print(f"   Trade #{len(trade_pairs) - i + 1}  {outcome_emoji}")
+        print(f"   ─────────────────────────────────────────")
+        print(f"   Entry:  {trade['Entry Date'].strftime('%Y-%m-%d')}  @  ₹{trade['Entry Price']:>8,.2f}")
+        print(f"   Target:                    ₹{trade['Target']:>8,.2f}  (+{((trade['Target']/trade['Entry Price']-1)*100):.1f}%)")
+        print(f"   Stop:                      ₹{trade['Stop Loss']:>8,.2f}  (-{((1-trade['Stop Loss']/trade['Entry Price'])*100):.1f}%)")
+        print(f"   Exit:   {trade['Exit Date'].strftime('%Y-%m-%d')}  @  ₹{trade['Exit Price']:>8,.2f}  {pnl_emoji}")
+        print(f"   P&L:                       ₹{trade['P&L']:>8,.2f}  ({trade['P&L %']:+.2f}%)")
+        print()
+    
+    # Summary statistics
+    total_trades = len(trade_pairs)
+    target_hits = sum(1 for t in trade_pairs if t['Outcome'] == 'Target Hit')
+    stop_hits = sum(1 for t in trade_pairs if t['Outcome'] == 'Stop Hit')
+    other_exits = sum(1 for t in trade_pairs if t['Outcome'] == 'Exit')
+    
+    print("   " + "─" * 66)
+    print(f"   Trade Outcomes:")
+    print(f"   🎯 Target Hit: {target_hits} ({target_hits/total_trades*100:.1f}%)")
+    print(f"   🛑 Stop Hit:   {stop_hits} ({stop_hits/total_trades*100:.1f}%)")
+    print(f"   📤 Other Exit: {other_exits} ({other_exits/total_trades*100:.1f}%)")
+    print("\n" + "="*70)
+
+
 def print_summary(symbol, strategy_name, results):
-    """Print detailed results summary"""
+    """Print detailed results summary with trade details"""
     metrics = results['metrics']
     
     print("\n" + "="*70)
@@ -340,6 +586,10 @@ def print_summary(symbol, strategy_name, results):
         print(f"   Profit Factor:               N/A")
     
     print("\n" + "="*70)
+    
+    # Trade details with stop loss and target
+    if metrics['Total Trades'] > 0 and 'trades' in results:
+        print_trade_details(results['trades'])
     
     # Interpretation
     print("\n💡 INTERPRETATION:")
@@ -438,7 +688,18 @@ def compare_all_strategies(symbol):
         # Donchian Breakout strategies
         (11, "Donchian Breakout"),
         (12, "Donchian Fast"),
-        (13, "Turtle Traders")
+        (13, "Turtle Traders"),
+        # Trend Line & S/R strategies
+        (14, "Trend Line Bounce"),
+        (15, "Trend Line Breakout"),
+        (16, "Support/Resistance Bounce"),
+        (17, "Support/Resistance Breakout"),
+        # Advanced S/R strategies
+        (18, "S/R + RSI"),
+        (19, "S/R + Volume"),
+        (20, "S/R + EMA"),
+        (21, "S/R + MACD"),
+        (22, "S/R All-in-One COMBO")
     ]
     
     results_list = []

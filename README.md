@@ -8,10 +8,11 @@ A simple and modular Python framework for backtesting trading strategies on stoc
 - 🇮🇳 **NSE Stock Support** - Backtest Indian stocks (see `NSE_GUIDE.md`)
 - 🇺🇸 US Stock Support - Works with any Yahoo Finance ticker
 - 🎯 Support for multiple order types (market, limit, stop loss)
+- 💰 **NEW: Trade Levels Display** - See Entry, Target, and Stop Loss for each trade (see `TRADE_LEVELS_GUIDE.md`)
 - 📈 Built-in performance metrics (total return, Sharpe ratio, max drawdown, etc.)
 - 🔧 Modular strategy interface - easily create and test your own strategies
 - 📉 Visualization of equity curves and performance
-- 💡 **13 Strategies included** - RSI, MACD, Bollinger Bands, Supertrend, Keltner, Williams %R, VWAP, Stochastic, and **NEW: Donchian Breakout (Turtle Traders)**
+- 💡 **14 Strategies included** - RSI, MACD, Bollinger Bands, Supertrend, Keltner, Williams %R, VWAP, Stochastic, Donchian Breakout, and **NEW: Harmonic Pattern Recognition**
 
 ## Installation
 
@@ -69,7 +70,8 @@ stocktrading/
 │   ├── williams_trend.py     # Williams %R trend
 │   ├── vwap_reversal.py      # VWAP reversal
 │   ├── stochastic_breakout.py # Stochastic breakout
-│   └── donchian_breakout.py  # 🆕 Donchian & Turtle Traders
+│   ├── donchian_breakout.py  # Donchian & Turtle Traders
+│   └── harmonic_patterns.py  # 🆕 Harmonic Pattern Recognition
 ├── examples/
 │   ├── simple_example.py   # Quick start
 │   ├── run_backtest.py     # Full examples

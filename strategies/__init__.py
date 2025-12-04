@@ -17,6 +17,19 @@ from .donchian_breakout import (
     AggressiveDonchianStrategy,
     TurtleTradersStrategy
 )
+from .trendline_strategy import TrendLineStrategy, TrendLineBreakoutStrategy
+from .support_resistance import (
+    SupportResistanceStrategy,
+    SupportResistanceBounceStrategy,
+    SupportResistanceBreakoutStrategy
+)
+from .sr_advanced_strategies import (
+    SRRSIStrategy,
+    SRVolumeStrategy,
+    SREMAStrategy,
+    SRMACDStrategy,
+    SRAllInOneStrategy
+)
 
 __all__ = [
     'MovingAverageCrossover',
@@ -38,6 +51,16 @@ __all__ = [
     'AggressiveWilliamsStrategy',
     'DonchianBreakoutStrategy',
     'AggressiveDonchianStrategy',
-    'TurtleTradersStrategy'
+    'TurtleTradersStrategy',
+    'TrendLineStrategy',
+    'TrendLineBreakoutStrategy',
+    'SupportResistanceStrategy',
+    'SupportResistanceBounceStrategy',
+    'SupportResistanceBreakoutStrategy',
+    'SRRSIStrategy',
+    'SRVolumeStrategy',
+    'SREMAStrategy',
+    'SRMACDStrategy',
+    'SRAllInOneStrategy'
 ]
 

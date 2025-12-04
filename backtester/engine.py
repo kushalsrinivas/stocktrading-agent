@@ -121,10 +121,14 @@ class Backtester:
             trade_history=trade_history
         )
         
+        # Format trades for display
+        trades_formatted = self._format_trades_for_display(trade_history)
+        
         self.results = {
             'metrics': metrics,
             'equity_curve': equity_curve,
             'trade_history': trade_history,
+            'trades': trades_formatted,
             'portfolio': self.portfolio,
             'data': self.data,
             'signals': self.signals
@@ -217,6 +221,28 @@ class Backtester:
                 stop_price=stop_price
             )
             self.portfolio.add_order(order)
+    
+    def _format_trades_for_display(self, trade_history: pd.DataFrame) -> pd.DataFrame:
+        """
+        Format trade history for display with Date, Type, Price columns
+        
+        Args:
+            trade_history: Raw trade history DataFrame
+            
+        Returns:
+            Formatted DataFrame with Date, Type, Price columns
+        """
+        if trade_history.empty:
+            return pd.DataFrame(columns=['Date', 'Type', 'Price', 'Quantity', 'Value'])
+        
+        formatted = trade_history.copy()
+        formatted['Date'] = formatted['timestamp']
+        formatted['Type'] = formatted['direction'].str.upper()
+        formatted['Price'] = formatted['price']
+        formatted['Quantity'] = formatted['quantity']
+        formatted['Value'] = formatted['value']
+        
+        return formatted[['Date', 'Type', 'Price', 'Quantity', 'Value']]
     
     def plot_results(self):
         """Plot backtest results"""
