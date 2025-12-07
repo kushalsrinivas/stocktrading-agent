@@ -34,7 +34,16 @@ from strategies import (
     WilliamsTrendStrategy,
     DonchianBreakoutStrategy,
     AggressiveDonchianStrategy,
-    TurtleTradersStrategy
+    TurtleTradersStrategy,
+    TrendLineStrategy,
+    TrendLineBreakoutStrategy,
+    SupportResistanceBounceStrategy,
+    SupportResistanceBreakoutStrategy,
+    SRRSIStrategy,
+    SRVolumeStrategy,
+    SREMAStrategy,
+    SRMACDStrategy,
+    SRAllInOneStrategy
 )
 from strategies.momentum import RSIMomentumStrategy, MACDMomentumStrategy
 
@@ -60,19 +69,39 @@ class SIPStrategyOptimizer:
     def _get_all_strategies(self) -> Dict:
         """Get all available strategies"""
         return {
+            # Classic strategies
             'RSI + Bollinger': RSIBollingerStrategy(),
             'Combined': CombinedStrategy(),
             'MA Crossover': MovingAverageCrossover(short_window=20, long_window=50),
             'RSI Momentum': RSIMomentumStrategy(),
             'MACD Momentum': MACDMomentumStrategy(),
+            
+            # Advanced strategies
             'Stochastic Breakout': StochasticBreakoutStrategy(),
             'VWAP Reversal': VWAPReversalStrategy(),
             'Supertrend': SupertrendMomentumStrategy(),
             'Keltner Squeeze': KeltnerSqueezeStrategy(),
             'Williams Trend': WilliamsTrendStrategy(),
+            
+            # Donchian strategies
             'Donchian Breakout': DonchianBreakoutStrategy(entry_period=55, exit_period=20),
             'Donchian Fast': AggressiveDonchianStrategy(entry_period=20, exit_period=10),
-            'Turtle Traders': TurtleTradersStrategy()
+            'Turtle Traders': TurtleTradersStrategy(),
+            
+            # Trend Line strategies
+            'Trend Line Bounce': TrendLineStrategy(lookback_period=50, min_touches=2, breakout_mode=False),
+            'Trend Line Breakout': TrendLineBreakoutStrategy(lookback_period=40, min_touches=2),
+            
+            # Basic S/R strategies
+            'S/R Bounce': SupportResistanceBounceStrategy(lookback_period=80, min_touches=3),
+            'S/R Breakout': SupportResistanceBreakoutStrategy(lookback_period=60, min_touches=2),
+            
+            # Advanced S/R strategies (NEW! 🔥)
+            'S/R + RSI': SRRSIStrategy(lookback_period=100, rsi_period=14, rsi_oversold=40, rsi_overbought=65),
+            'S/R + Volume': SRVolumeStrategy(lookback_period=80, volume_threshold=1.5, breakout_confirmation=0.01),
+            'S/R + EMA': SREMAStrategy(lookback_period=100, ema_fast=20, ema_slow=50, volume_threshold=1.2),
+            'S/R + MACD': SRMACDStrategy(lookback_period=100, macd_fast=12, macd_slow=26, macd_signal=9),
+            'S/R All-in-One': SRAllInOneStrategy(lookback_period=100, rsi_period=14, ema_fast=20, ema_slow=50, volume_threshold=1.3)
         }
     
     def load_stocks(self) -> pd.DataFrame:
@@ -492,10 +521,14 @@ def main():
     print("   📈 SIP STRATEGY OPTIMIZER 📈")
     print("="*80)
     print("\nThis tool will:")
-    print("  1. Analyze all stocks in your CSV")
+    print("  1. Analyze all stocks in your CSV (22 strategies available!)")
     print("  2. Find the best strategy for each stock")
     print("  3. Simulate a monthly SIP investment")
     print("  4. Show you detailed charts and results")
+    print("\n🔥 NEW: Advanced S/R strategies with multiple confirmations!")
+    print("   • S/R + RSI (Momentum) • S/R + Volume (Breakout)")
+    print("   • S/R + EMA (Trend)    • S/R + MACD (Reversal)")
+    print("   • S/R All-in-One COMBO (Best Win Rate!)")
     print("\n" + "="*80 + "\n")
     
     # Get user inputs
