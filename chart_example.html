@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Backtest Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .charts {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 Stock Backtest Charting Example</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Stock Ticker</label>
+                <input type="text" id="ticker" value="RELIANCE" placeholder="e.g., RELIANCE, TCS">
+            </div>
+            <div class="control-group">
+                <label>Strategy</label>
+                <select id="strategy">
+                    <option value="sr_all_in_one">S/R All-in-One COMBO</option>
+                    <option value="sr_rsi">S/R + RSI</option>
+                    <option value="sr_ema">S/R + EMA</option>
+                    <option value="supertrend">Supertrend</option>
+                    <option value="turtle_traders">Turtle Traders</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Initial Capital (₹)</label>
+                <input type="number" id="capital" value="10000">
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button onclick="runBacktest()" id="runBtn">Run Backtest</button>
+            </div>
+        </div>
+
+        <div class="error" id="error"></div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Running backtest and generating charts...</p>
+        </div>
+
+        <div id="results" style="display: none;">
+            <div class="metrics" id="metrics"></div>
+            
+            <div class="charts">
+                <div class="chart-container">
+                    <div class="chart-title">📊 Price Chart</div>
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">💰 Equity Curve</div>
+                    <canvas id="equityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container" style="margin-top: 20px;">
+                <div class="chart-title">📈 Combined View</div>
+                <canvas id="combinedChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let priceChart, equityChart, combinedChart;
+
+        async function runBacktest() {
+            const ticker = document.getElementById('ticker').value.toUpperCase();
+            const strategy = document.getElementById('strategy').value;
+            const capital = document.getElementById('capital').value;
+
+            if (!ticker) {
+                showError('Please enter a stock ticker');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').style.display = 'none';
+            hideError();
+            document.getElementById('runBtn').disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/backtest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ticker: ticker,
+                        strategy: strategy,
+                        initial_capital: parseFloat(capital)
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    displayResults(result.data);
+                } else {
+                    showError(result.detail || 'Backtest failed');
+                }
+            } catch (error) {
+                showError(`Error: ${error.message}. Make sure the API server is running.`);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('runBtn').disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            // Display metrics
+            const metrics = data.metrics;
+            const metricsHtml = `
+                <div class="metric-card">
+                    <div class="metric-label">Total Return</div>
+                    <div class="metric-value">${metrics.total_return_pct.toFixed(2)}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Final Value</div>
+                    <div class="metric-value">₹${metrics.final_value.toLocaleString()}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Trades</div>
+                    <div class="metric-value">${metrics.total_trades}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Win Rate</div>
+                    <div class="metric-value">${metrics.win_rate_pct.toFixed(1)}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Sharpe Ratio</div>
+                    <div class="metric-value">${metrics.sharpe_ratio.toFixed(2)}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Max Drawdown</div>
+                    <div class="metric-value">${metrics.max_drawdown_pct.toFixed(2)}%</div>
+                </div>
+            `;
+            document.getElementById('metrics').innerHTML = metricsHtml;
+
+            // Create charts
+            createPriceChart(data);
+            createEquityChart(data);
+            createCombinedChart(data);
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function createPriceChart(data) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // Destroy existing chart
+            if (priceChart) priceChart.destroy();
+
+            const historicalData = data.historical_data || [];
+            
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.map(d => d.date),
+                    datasets: [{
+                        label: `${data.ticker} Close Price`,
+                        data: historicalData.map(d => d.close),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createEquityChart(data) {
+            const ctx = document.getElementById('equityChart').getContext('2d');
+            
+            // Destroy existing chart
+            if (equityChart) equityChart.destroy();
+
+            const equityCurve = data.equity_curve || [];
+            const initialValue = data.metrics.initial_capital;
+            
+            equityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: equityCurve.map(d => d.date),
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: equityCurve.map(d => d.value),
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderWidth: 3,
+                        tension: 0.1,
+                        fill: true
+                    }, {
+                        label: 'Initial Capital',
+                        data: equityCurve.map(() => initialValue),
+                        borderColor: 'rgba(255, 99, 132, 0.5)',
+                        borderWidth: 1,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCombinedChart(data) {
+            const ctx = document.getElementById('combinedChart').getContext('2d');
+            
+            // Destroy existing chart
+            if (combinedChart) combinedChart.destroy();
+
+            const historicalData = data.historical_data || [];
+            const equityCurve = data.equity_curve || [];
+            
+            // Normalize data to percentage change from start
+            const priceStart = historicalData[0]?.close || 1;
+            const equityStart = equityCurve[0]?.value || 1;
+            
+            combinedChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.map(d => d.date),
+                    datasets: [{
+                        label: 'Stock Price (% Change)',
+                        data: historicalData.map(d => ((d.close / priceStart - 1) * 100)),
+                        borderColor: 'rgb(255, 159, 64)',
+                        backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Strategy Performance (% Change)',
+                        data: equityCurve.map(d => ((d.value / equityStart - 1) * 100)),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.1,
+                        yAxisID: 'y'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.remove('show');
+        }
+
+        // Run initial backtest on load
+        window.onload = () => {
+            runBacktest();
+        };
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Backtesting API - Web Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .metric-value {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .metric-value.positive {
+            color: #28a745;
+        }
+
+        .metric-value.negative {
+            color: #dc3545;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            background: #f8f9fa;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .strategy-card {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .strategy-card:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .strategy-card.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 Stock Backtesting API</h1>
+            <p>Test NSE stocks with 22+ trading strategies</p>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('single')">Single Backtest</div>
+                <div class="tab" onclick="switchTab('compare')">Compare Strategies</div>
+                <div class="tab" onclick="switchTab('multi')">Multiple Tickers</div>
+            </div>
+
+            <!-- Single Backtest Tab -->
+            <div id="single-tab" class="tab-content active">
+                <div class="section">
+                    <h2>Single Backtest</h2>
+                    <div class="info-box">
+                        💡 Test one stock with one strategy. Great for quick testing!
+                    </div>
+
+                    <form id="single-form" onsubmit="runSingleBacktest(event)">
+                        <div class="form-group">
+                            <label for="single-ticker">Stock Ticker</label>
+                            <input type="text" id="single-ticker" placeholder="e.g., RELIANCE, TCS, INFY" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="single-strategy">Strategy</label>
+                            <select id="single-strategy" required>
+                                <option value="sr_all_in_one">⭐ S/R All-in-One COMBO (Best)</option>
+                                <option value="sr_rsi">🔥 S/R + RSI</option>
+                                <option value="sr_ema">🔥 S/R + EMA</option>
+                                <option value="sr_macd">🔥 S/R + MACD</option>
+                                <option value="sr_volume">🔥 S/R + Volume</option>
+                                <option value="supertrend">Supertrend Momentum</option>
+                                <option value="turtle_traders">Turtle Traders</option>
+                                <option value="donchian_breakout">Donchian Breakout</option>
+                                <option value="rsi_bb">RSI + Bollinger Bands</option>
+                                <option value="ma_crossover">MA Crossover</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="single-capital">Initial Capital (₹)</label>
+                            <input type="number" id="single-capital" value="10000" required>
+                        </div>
+
+                        <button type="submit" class="button">Run Backtest</button>
+                    </form>
+
+                    <div class="loading" id="single-loading">
+                        <div class="spinner"></div>
+                        <p>Running backtest...</p>
+                    </div>
+
+                    <div class="error" id="single-error"></div>
+
+                    <div class="results" id="single-results"></div>
+                </div>
+            </div>
+
+            <!-- Compare Strategies Tab -->
+            <div id="compare-tab" class="tab-content">
+                <div class="section">
+                    <h2>Compare Strategies</h2>
+                    <div class="info-box">
+                        💡 Compare multiple strategies to find the best one for your stock!
+                    </div>
+
+                    <form id="compare-form" onsubmit="runCompare(event)">
+                        <div class="form-group">
+                            <label for="compare-ticker">Stock Ticker</label>
+                            <input type="text" id="compare-ticker" placeholder="e.g., RELIANCE" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Select Strategies to Compare</label>
+                            <div class="strategy-grid">
+                                <div class="strategy-card" onclick="toggleStrategy(this, 'sr_all_in_one')">
+                                    ⭐ S/R All-in-One
+                                </div>
+                                <div class="strategy-card" onclick="toggleStrategy(this, 'sr_rsi')">
+                                    🔥 S/R + RSI
+                                </div>
+                                <div class="strategy-card" onclick="toggleStrategy(this, 'sr_ema')">
+                                    🔥 S/R + EMA
+                                </div>
+                                <div class="strategy-card" onclick="toggleStrategy(this, 'supertrend')">
+                                    Supertrend
+                                </div>
+                                <div class="strategy-card" onclick="toggleStrategy(this, 'turtle_traders')">
+                                    Turtle Traders
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="button">Compare Strategies</button>
+                    </form>
+
+                    <div class="loading" id="compare-loading">
+                        <div class="spinner"></div>
+                        <p>Comparing strategies...</p>
+                    </div>
+
+                    <div class="error" id="compare-error"></div>
+
+                    <div class="results" id="compare-results"></div>
+                </div>
+            </div>
+
+            <!-- Multiple Tickers Tab -->
+            <div id="multi-tab" class="tab-content">
+                <div class="section">
+                    <h2>Multiple Tickers</h2>
+                    <div class="info-box">
+                        💡 Test multiple stocks with one strategy to build a portfolio!
+                    </div>
+
+                    <form id="multi-form" onsubmit="runMultiTicker(event)">
+                        <div class="form-group">
+                            <label for="multi-tickers">Stock Tickers (comma-separated)</label>
+                            <input type="text" id="multi-tickers" placeholder="e.g., RELIANCE, TCS, INFY" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="multi-strategy">Strategy</label>
+                            <select id="multi-strategy" required>
+                                <option value="sr_all_in_one">⭐ S/R All-in-One COMBO</option>
+                                <option value="sr_rsi">🔥 S/R + RSI</option>
+                                <option value="sr_ema">🔥 S/R + EMA</option>
+                                <option value="supertrend">Supertrend</option>
+                                <option value="turtle_traders">Turtle Traders</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="button">Test Tickers</button>
+                    </form>
+
+                    <div class="loading" id="multi-loading">
+                        <div class="spinner"></div>
+                        <p>Testing tickers...</p>
+                    </div>
+
+                    <div class="error" id="multi-error"></div>
+
+                    <div class="results" id="multi-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let selectedStrategies = [];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+
+        function toggleStrategy(element, strategy) {
+            element.classList.toggle('selected');
+            const index = selectedStrategies.indexOf(strategy);
+            if (index > -1) {
+                selectedStrategies.splice(index, 1);
+            } else {
+                selectedStrategies.push(strategy);
+            }
+        }
+
+        async function runSingleBacktest(event) {
+            event.preventDefault();
+            
+            const ticker = document.getElementById('single-ticker').value.toUpperCase();
+            const strategy = document.getElementById('single-strategy').value;
+            const capital = document.getElementById('single-capital').value;
+            
+            showLoading('single');
+            hideError('single');
+            hideResults('single');
+            
+            try {
+                const response = await fetch(`${API_BASE}/backtest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ticker: ticker,
+                        strategy: strategy,
+                        initial_capital: parseFloat(capital)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    displaySingleResults(result.data);
+                } else {
+                    showError('single', result.detail || 'Unknown error');
+                }
+            } catch (error) {
+                showError('single', `Error: ${error.message}. Make sure the API server is running.`);
+            } finally {
+                hideLoading('single');
+            }
+        }
+
+        async function runCompare(event) {
+            event.preventDefault();
+            
+            if (selectedStrategies.length === 0) {
+                showError('compare', 'Please select at least one strategy');
+                return;
+            }
+            
+            const ticker = document.getElementById('compare-ticker').value.toUpperCase();
+            
+            showLoading('compare');
+            hideError('compare');
+            hideResults('compare');
+            
+            try {
+                const response = await fetch(`${API_BASE}/compare`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ticker: ticker,
+                        strategies: selectedStrategies,
+                        initial_capital: 10000
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    displayCompareResults(result);
+                } else {
+                    showError('compare', result.detail || 'Unknown error');
+                }
+            } catch (error) {
+                showError('compare', `Error: ${error.message}`);
+            } finally {
+                hideLoading('compare');
+            }
+        }
+
+        async function runMultiTicker(event) {
+            event.preventDefault();
+            
+            const tickers = document.getElementById('multi-tickers').value
+                .split(',')
+                .map(t => t.trim().toUpperCase());
+            const strategy = document.getElementById('multi-strategy').value;
+            
+            showLoading('multi');
+            hideError('multi');
+            hideResults('multi');
+            
+            try {
+                const response = await fetch(`${API_BASE}/multi-ticker`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tickers: tickers,
+                        strategy: strategy,
+                        initial_capital: 10000
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    displayMultiResults(result);
+                } else {
+                    showError('multi', result.detail || 'Unknown error');
+                }
+            } catch (error) {
+                showError('multi', `Error: ${error.message}`);
+            } finally {
+                hideLoading('multi');
+            }
+        }
+
+        function displaySingleResults(data) {
+            const metrics = data.metrics;
+            const profitLoss = metrics.final_value - metrics.initial_capital;
+            
+            const html = `
+                <h3>Results for ${data.ticker} (${data.strategy})</h3>
+                <div class="metric">
+                    <span class="metric-label">Initial Capital</span>
+                    <span class="metric-value">₹${metrics.initial_capital.toLocaleString()}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Final Value</span>
+                    <span class="metric-value">₹${metrics.final_value.toLocaleString()}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Profit/Loss</span>
+                    <span class="metric-value ${profitLoss > 0 ? 'positive' : 'negative'}">
+                        ₹${profitLoss.toLocaleString()} (${metrics.total_return_pct.toFixed(2)}%)
+                    </span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Total Trades</span>
+                    <span class="metric-value">${metrics.total_trades}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Win Rate</span>
+                    <span class="metric-value">${metrics.win_rate_pct.toFixed(2)}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Sharpe Ratio</span>
+                    <span class="metric-value">${metrics.sharpe_ratio.toFixed(2)}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Max Drawdown</span>
+                    <span class="metric-value negative">${metrics.max_drawdown_pct.toFixed(2)}%</span>
+                </div>
+            `;
+            
+            document.getElementById('single-results').innerHTML = html;
+            showResults('single');
+        }
+
+        function displayCompareResults(data) {
+            let html = `<h3>Strategy Comparison for ${data.ticker}</h3>`;
+            
+            if (data.best_strategy) {
+                html += `
+                    <div class="info-box">
+                        <strong>🏆 Best Strategy:</strong> ${data.best_strategy.name}<br>
+                        <strong>Return:</strong> ${data.best_strategy.total_return_pct.toFixed(2)}%<br>
+                        <strong>Win Rate:</strong> ${data.best_strategy.win_rate_pct.toFixed(2)}%
+                    </div>
+                `;
+            }
+            
+            data.results.forEach((result, index) => {
+                const metrics = result.metrics;
+                html += `
+                    <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px;">
+                        <h4>${index + 1}. ${result.strategy}</h4>
+                        <div class="metric">
+                            <span class="metric-label">Return</span>
+                            <span class="metric-value ${metrics.total_return_pct > 0 ? 'positive' : 'negative'}">
+                                ${metrics.total_return_pct.toFixed(2)}%
+                            </span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Win Rate</span>
+                            <span class="metric-value">${metrics.win_rate_pct.toFixed(2)}%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Trades</span>
+                            <span class="metric-value">${metrics.total_trades}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('compare-results').innerHTML = html;
+            showResults('compare');
+        }
+
+        function displayMultiResults(data) {
+            let html = `<h3>Multi-Ticker Results (${data.strategy})</h3>`;
+            
+            html += `
+                <div class="info-box">
+                    <strong>Average Return:</strong> ${data.summary.average_return_pct.toFixed(2)}%<br>
+                    <strong>Best Ticker:</strong> ${data.summary.best_ticker?.ticker} 
+                    (${data.summary.best_ticker?.return_pct.toFixed(2)}%)
+                </div>
+            `;
+            
+            data.results.forEach((result, index) => {
+                const metrics = result.metrics;
+                html += `
+                    <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px;">
+                        <h4>${index + 1}. ${result.ticker}</h4>
+                        <div class="metric">
+                            <span class="metric-label">Return</span>
+                            <span class="metric-value ${metrics.total_return_pct > 0 ? 'positive' : 'negative'}">
+                                ${metrics.total_return_pct.toFixed(2)}%
+                            </span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Win Rate</span>
+                            <span class="metric-value">${metrics.win_rate_pct.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('multi-results').innerHTML = html;
+            showResults('multi');
+        }
+
+        function showLoading(type) {
+            document.getElementById(`${type}-loading`).classList.add('show');
+        }
+
+        function hideLoading(type) {
+            document.getElementById(`${type}-loading`).classList.remove('show');
+        }
+
+        function showResults(type) {
+            document.getElementById(`${type}-results`).classList.add('show');
+        }
+
+        function hideResults(type) {
+            document.getElementById(`${type}-results`).classList.remove('show');
+        }
+
+        function showError(type, message) {
+            const errorEl = document.getElementById(`${type}-error`);
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function hideError(type) {
+            document.getElementById(`${type}-error`).classList.remove('show');
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,197 @@
+{
+  "info": {
+    "name": "Stock Backtesting API",
+    "description": "Collection of API endpoints for stock backtesting with 22 strategies",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the API is running"
+      }
+    },
+    {
+      "name": "List Strategies",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/strategies",
+          "host": ["{{baseUrl}}"],
+          "path": ["strategies"]
+        },
+        "description": "Get list of all 22 available strategies"
+      }
+    },
+    {
+      "name": "Single Backtest",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ticker\": \"RELIANCE\",\n  \"strategy\": \"sr_all_in_one\",\n  \"start_date\": \"2023-01-01\",\n  \"end_date\": \"2024-12-31\",\n  \"initial_capital\": 10000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/backtest",
+          "host": ["{{baseUrl}}"],
+          "path": ["backtest"]
+        },
+        "description": "Run backtest for single ticker with single strategy"
+      }
+    },
+    {
+      "name": "Compare Strategies",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ticker\": \"TCS\",\n  \"strategies\": [\"sr_all_in_one\", \"sr_rsi\", \"supertrend\"],\n  \"start_date\": \"2023-01-01\",\n  \"end_date\": \"2024-12-31\",\n  \"initial_capital\": 10000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/compare",
+          "host": ["{{baseUrl}}"],
+          "path": ["compare"]
+        },
+        "description": "Compare multiple strategies on single ticker"
+      }
+    },
+    {
+      "name": "Multi-Ticker Test",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tickers\": [\"RELIANCE\", \"TCS\", \"INFY\"],\n  \"strategy\": \"sr_all_in_one\",\n  \"start_date\": \"2023-01-01\",\n  \"end_date\": \"2024-12-31\",\n  \"initial_capital\": 10000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/multi-ticker",
+          "host": ["{{baseUrl}}"],
+          "path": ["multi-ticker"]
+        },
+        "description": "Test multiple tickers with single strategy"
+      }
+    },
+    {
+      "name": "Optimize Strategy",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ticker\": \"INFY\",\n  \"metric\": \"total_return\",\n  \"start_date\": \"2023-01-01\",\n  \"end_date\": \"2024-12-31\",\n  \"initial_capital\": 10000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/optimize",
+          "host": ["{{baseUrl}}"],
+          "path": ["optimize"]
+        },
+        "description": "Find best strategy for a ticker"
+      }
+    },
+    {
+      "name": "Compare All Strategies",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ticker\": \"RELIANCE\",\n  \"start_date\": \"2023-01-01\",\n  \"end_date\": \"2024-12-31\",\n  \"initial_capital\": 10000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/compare",
+          "host": ["{{baseUrl}}"],
+          "path": ["compare"]
+        },
+        "description": "Compare ALL 22 strategies (omit strategies array)"
+      }
+    },
+    {
+      "name": "Short-term Test (3 months)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ticker\": \"TCS\",\n  \"strategy\": \"sr_all_in_one\",\n  \"initial_capital\": 10000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/backtest",
+          "host": ["{{baseUrl}}"],
+          "path": ["backtest"]
+        },
+        "description": "Test with default dates (last 2 years)"
+      }
+    },
+    {
+      "name": "Test Top 5 Stocks",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tickers\": [\"RELIANCE\", \"TCS\", \"INFY\", \"HDFCBANK\", \"ICICIBANK\"],\n  \"strategy\": \"sr_all_in_one\",\n  \"start_date\": \"2023-01-01\",\n  \"end_date\": \"2024-12-31\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/multi-ticker",
+          "host": ["{{baseUrl}}"],
+          "path": ["multi-ticker"]
+        },
+        "description": "Test top 5 large-cap stocks"
+      }
+    }
+  ]
+}
+
